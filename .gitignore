@@ -4,3 +4,7 @@
 /*.dat
 /gadget-chains.txt
 *.jps
+bin/
+.classpath
+.settings/
+.project
