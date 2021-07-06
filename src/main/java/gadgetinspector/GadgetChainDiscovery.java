@@ -12,19 +12,13 @@ import gadgetinspector.data.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -130,33 +124,6 @@ public class GadgetChainDiscovery {
 
         return discoveredGadgets;
     }
-
-    /*
-    private Set<GadgetChain> getSources(Map<Long, String> classNameMap, Map<Long, MethodReferenceOld> methodIdMap, Map<Long, Set<Long>> inheritanceMap) {
-        Long serializableClassId = null;
-        for (Map.Entry<Long, String> entry : classNameMap.entrySet()) {
-            if (entry.getValue().equals("java/io/Serializable")) {
-                serializableClassId = entry.getKey();
-                break;
-            }
-        }
-        if (serializableClassId == null) {
-            throw new IllegalStateException("No class ID found for java.io.Serializable");
-        }
-
-        Set<GadgetChain> sources = new HashSet<>();
-        for (Map.Entry<Long, MethodReferenceOld> entry : methodIdMap.entrySet()) {
-            MethodReferenceOld method = entry.getValue();
-            if (inheritanceMap.get(method.getClassId()).contains(serializableClassId)
-                    && method.getName().equals("readObject")
-                    && method.getDesc().equals("(Ljava/io/ObjectInputStream;)V")) {
-                sources.add(new GadgetChain(Arrays.asList(new GadgetChainLink(entry.getKey(), 0))));
-            }
-        }
-
-        return sources;
-    }
-    */
 
     /**
      * Represents a collection of methods in the JDK that we consider to be "interesting". If a gadget chain can
