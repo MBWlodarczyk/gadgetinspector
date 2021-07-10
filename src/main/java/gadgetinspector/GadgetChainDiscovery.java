@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 
 public class GadgetChainDiscovery {
 
@@ -111,7 +112,9 @@ public class GadgetChainDiscovery {
                         }
 
                         GadgetChain newChain = new GadgetChain(chain, newLink);
-                        if (isSink(methodImpl, graphCall.getTargetArgIndex(), inheritanceMap)) {
+                        Optional<GadgetChain.Type> maybeType = isSink(methodImpl, graphCall.getTargetArgIndex(), inheritanceMap);
+                        if (maybeType.isPresent()) {
+                            newChain.type = maybeType.get();
                             discoveredGadgets.add(newChain);
                         } else {
                             methodsToExplore.add(newChain);
@@ -135,35 +138,35 @@ public class GadgetChainDiscovery {
      * @return
      */
     // TODO: Parameterize this as a configuration option
-    private boolean isSink(MethodReference.Handle method, int argIndex, InheritanceMap inheritanceMap) {
+    private Optional<GadgetChain.Type> isSink(MethodReference.Handle method, int argIndex, InheritanceMap inheritanceMap) {
         if (method.getClassReference().getName().equals("java/io/FileInputStream")
                 && method.getName().equals("<init>")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/io/FileOutputStream")
                 && method.getName().equals("<init>")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/nio/file/Files")
             && (method.getName().equals("newInputStream")
                 || method.getName().equals("newOutputStream")
                 || method.getName().equals("newBufferedReader")
                 || method.getName().equals("newBufferedWriter"))) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         if (method.getClassReference().getName().equals("java/lang/Runtime")
                 && method.getName().equals("exec")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         /*
         if (method.getClassReference().getName().equals("java/lang/Class")
                 && method.getName().equals("forName")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/lang/Class")
                 && method.getName().equals("getMethod")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         */
         // If we can invoke an arbitrary method, that's probably interesting (though this doesn't assert that we
@@ -171,61 +174,61 @@ public class GadgetChainDiscovery {
         // method is being invoked, we don't mark that as interesting.
         if (method.getClassReference().getName().equals("java/lang/reflect/Method")
                 && method.getName().equals("invoke") && argIndex == 0) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/net/URLClassLoader")
                 && method.getName().equals("newInstance")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/lang/System")
                 && method.getName().equals("exit")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/lang/Shutdown")
                 && method.getName().equals("exit")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
         if (method.getClassReference().getName().equals("java/lang/Runtime")
                 && method.getName().equals("exit")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         if (method.getClassReference().getName().equals("java/nio/file/Files")
                 && method.getName().equals("newOutputStream")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         if (method.getClassReference().getName().equals("java/lang/ProcessBuilder")
                 && method.getName().equals("<init>") && argIndex > 0) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         if (inheritanceMap.isSubclassOf(method.getClassReference(), new ClassReference.Handle("java/lang/ClassLoader"))
                 && method.getName().equals("<init>")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         if (method.getClassReference().getName().equals("java/net/URL") && method.getName().equals("openStream")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         // Some groovy-specific sinks
         if (method.getClassReference().getName().equals("org/codehaus/groovy/runtime/InvokerHelper")
                 && method.getName().equals("invokeMethod") && argIndex == 1) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         if (inheritanceMap.isSubclassOf(method.getClassReference(), new ClassReference.Handle("groovy/lang/MetaClass"))
                 && Arrays.asList("invokeMethod", "invokeConstructor", "invokeStaticMethod").contains(method.getName())) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
         // This jython-specific sink effectively results in RCE
         if (method.getClassReference().getName().equals("org/python/core/PyCode") && method.getName().equals("call")) {
-            return true;
+            return Optional.of(GadgetChain.Type.UNKNOWN);
         }
 
-        return false;
+        return Optional.ofNullable(null);
     }
 
     public static void main(String[] args) throws Exception {
