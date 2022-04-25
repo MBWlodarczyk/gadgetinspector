@@ -10,7 +10,7 @@ class GadgetChain {
    public GadgetChain.Type type;
 
    public enum Type {
-      RCE, DNS, UNKNOWN
+      RCE, FILE, NET, INVOKE, UNKNOWN
    }
 
    public GadgetChain(List<GadgetChainLink> links) {

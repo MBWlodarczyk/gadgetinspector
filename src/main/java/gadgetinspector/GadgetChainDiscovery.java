@@ -141,23 +141,23 @@ public class GadgetChainDiscovery {
     private Optional<GadgetChain.Type> isSink(MethodReference.Handle method, int argIndex, InheritanceMap inheritanceMap) {
         if (method.getClassReference().getName().equals("java/io/FileInputStream")
                 && method.getName().equals("<init>")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.FILE);
         }
         if (method.getClassReference().getName().equals("java/io/FileOutputStream")
                 && method.getName().equals("<init>")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.FILE);
         }
         if (method.getClassReference().getName().equals("java/nio/file/Files")
             && (method.getName().equals("newInputStream")
                 || method.getName().equals("newOutputStream")
                 || method.getName().equals("newBufferedReader")
                 || method.getName().equals("newBufferedWriter"))) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.FILE);
         }
 
         if (method.getClassReference().getName().equals("java/lang/Runtime")
                 && method.getName().equals("exec")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.RCE);
         }
         /*
         if (method.getClassReference().getName().equals("java/lang/Class")
@@ -174,11 +174,11 @@ public class GadgetChainDiscovery {
         // method is being invoked, we don't mark that as interesting.
         if (method.getClassReference().getName().equals("java/lang/reflect/Method")
                 && method.getName().equals("invoke") && argIndex == 0) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.INVOKE);
         }
         if (method.getClassReference().getName().equals("java/net/URLClassLoader")
                 && method.getName().equals("newInstance")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.NET);
         }
         if (method.getClassReference().getName().equals("java/lang/System")
                 && method.getName().equals("exit")) {
@@ -195,37 +195,37 @@ public class GadgetChainDiscovery {
 
         if (method.getClassReference().getName().equals("java/nio/file/Files")
                 && method.getName().equals("newOutputStream")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.FILE);
         }
 
         if (method.getClassReference().getName().equals("java/lang/ProcessBuilder")
                 && method.getName().equals("<init>") && argIndex > 0) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.RCE);
         }
 
         if (inheritanceMap.isSubclassOf(method.getClassReference(), new ClassReference.Handle("java/lang/ClassLoader"))
                 && method.getName().equals("<init>")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.INVOKE);
         }
 
         if (method.getClassReference().getName().equals("java/net/URL") && method.getName().equals("openStream")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.NET);
         }
 
         // Some groovy-specific sinks
         if (method.getClassReference().getName().equals("org/codehaus/groovy/runtime/InvokerHelper")
                 && method.getName().equals("invokeMethod") && argIndex == 1) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.INVOKE);
         }
 
         if (inheritanceMap.isSubclassOf(method.getClassReference(), new ClassReference.Handle("groovy/lang/MetaClass"))
                 && Arrays.asList("invokeMethod", "invokeConstructor", "invokeStaticMethod").contains(method.getName())) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.INVOKE);
         }
 
         // This jython-specific sink effectively results in RCE
         if (method.getClassReference().getName().equals("org/python/core/PyCode") && method.getName().equals("call")) {
-            return Optional.of(GadgetChain.Type.UNKNOWN);
+            return Optional.of(GadgetChain.Type.RCE);
         }
 
         return Optional.ofNullable(null);

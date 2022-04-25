@@ -128,9 +128,9 @@ public class GadgetInspector {
 	     Set<GadgetChain> discoveredGadgets = gadgetChainDiscovery.discover();
 
         try (OutputStream outputStream = Files.newOutputStream(Paths.get("gadget-chains.txt"));
-             Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+            Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             for (GadgetChain chain : discoveredGadgets) {
-                chain.write(writer);
+                   chain.write(writer);
             }
         }
 
