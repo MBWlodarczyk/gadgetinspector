@@ -23,8 +23,8 @@ dependencies {
     implementation "org.ow2.asm:asm:9.+"
     implementation "org.ow2.asm:asm-commons:9.+"
     implementation "com.google.guava:guava:29.0-jre"
-    implementation 'org.slf4j:slf4j-api:1.7.25'
-    implementation 'org.slf4j:slf4j-log4j12:1.7.25'
+    implementation 'org.slf4j:slf4j-api:1.7.+'
+    implementation 'org.slf4j:slf4j-log4j12:1.7.+'
 
     if (project.hasProperty("inspectGroup")) {
         implementation "${project.inspectGroup}:${project.inspectName}:${project.inspectVersion}"
