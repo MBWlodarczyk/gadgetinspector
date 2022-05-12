@@ -1,9 +1,11 @@
 buildscript {
     repositories {
-        jcenter()
+        maven {
+          url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.3'
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
     }
 }
 
@@ -14,18 +16,18 @@ apply plugin: 'application'
 mainClassName = 'gadgetinspector.GadgetInspector'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    compile "org.ow2.asm:asm:8.+"
-    compile "org.ow2.asm:asm-commons:8.+"
-    compile "com.google.guava:guava:29.0-jre"
-    compile 'org.slf4j:slf4j-api:1.7.25'
-    compile 'org.slf4j:slf4j-log4j12:1.7.25'
+    implementation "org.ow2.asm:asm:9.+"
+    implementation "org.ow2.asm:asm-commons:9.+"
+    implementation "com.google.guava:guava:29.0-jre"
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'org.slf4j:slf4j-log4j12:1.7.25'
 
     if (project.hasProperty("inspectGroup")) {
-        compile "${project.inspectGroup}:${project.inspectName}:${project.inspectVersion}"
+        implementation "${project.inspectGroup}:${project.inspectName}:${project.inspectVersion}"
     }
 }
 

@@ -57,7 +57,7 @@ public class MethodDiscovery {
         private ClassReference.Handle classHandle;
 
         private MethodDiscoveryClassVisitor() {
-            super(Opcodes.ASM8);
+            super(Opcodes.ASM9);
         }
 
         @Override
