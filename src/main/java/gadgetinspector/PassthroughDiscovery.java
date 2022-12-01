@@ -177,7 +177,7 @@ public class PassthroughDiscovery {
     }
 
     public static Map<MethodReference.Handle, Set<Integer>> load() throws IOException {
-        Map<MethodReference.Handle, Set<Integer>> passthroughDataflow = new HashMap<>();
+        Map<MethodReference.Handle, Set<Integer>> passthroughDataflow = new ConcurrentHashMap<>();
         for (Map.Entry<MethodReference.Handle, Set<Integer>> entry : DataLoader.loadData(Paths.get("passthrough.dat"), new PassThroughFactory())) {
             passthroughDataflow.put(entry.getKey(), entry.getValue());
         }

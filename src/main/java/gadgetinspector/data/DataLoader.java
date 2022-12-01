@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataLoader {
     public static <T> List<T> loadData(Path filePath, DataFactory<T> factory) throws IOException {
@@ -43,7 +44,7 @@ public class DataLoader {
 
     public static Map<ClassReference.Handle, ClassReference> loadClasses() {
         try {
-            Map<ClassReference.Handle, ClassReference> classMap = new HashMap<>();
+            Map<ClassReference.Handle, ClassReference> classMap = new ConcurrentHashMap<>();
             for (ClassReference classReference : loadData(Paths.get("classes.dat"), new ClassReference.Factory())) {
                 classMap.put(classReference.getHandle(), classReference);
             }
@@ -55,7 +56,7 @@ public class DataLoader {
 
     public static Map<MethodReference.Handle, MethodReference> loadMethods() {
         try {
-            Map<MethodReference.Handle, MethodReference> methodMap = new HashMap<>();
+            Map<MethodReference.Handle, MethodReference> methodMap = new ConcurrentHashMap<>();
             for (MethodReference methodReference : loadData(Paths.get("methods.dat"), new MethodReference.Factory())) {
                 methodMap.put(methodReference.getHandle(), methodReference);
             }

@@ -7,7 +7,7 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
 import java.util.*;
-
+@SuppressWarnings("unchecked")
 public class TaintTrackingMethodVisitor<T> extends MethodVisitor {
 
     private static final Object[][] PASSTHROUGH_DATAFLOW = new Object[][] {

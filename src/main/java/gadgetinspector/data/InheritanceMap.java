@@ -3,6 +3,7 @@ package gadgetinspector.data;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InheritanceMap {
     private final Map<ClassReference.Handle, Set<ClassReference.Handle>> inheritanceMap;
@@ -10,7 +11,7 @@ public class InheritanceMap {
 
     public InheritanceMap(Map<ClassReference.Handle, Set<ClassReference.Handle>> inheritanceMap) {
         this.inheritanceMap = inheritanceMap;
-        subClassMap = new HashMap<>();
+        subClassMap = new ConcurrentHashMap<>();
         for (Map.Entry<ClassReference.Handle, Set<ClassReference.Handle>> entry : inheritanceMap.entrySet()) {
             ClassReference.Handle child = entry.getKey();
             for (ClassReference.Handle parent : entry.getValue()) {
@@ -52,7 +53,7 @@ public class InheritanceMap {
     }
 
     public static InheritanceMap load() throws IOException {
-        Map<ClassReference.Handle, Set<ClassReference.Handle>> inheritanceMap = new HashMap<>();
+        Map<ClassReference.Handle, Set<ClassReference.Handle>> inheritanceMap = new ConcurrentHashMap<>();
         for (Map.Entry<ClassReference.Handle, Set<ClassReference.Handle>> entry : DataLoader.loadData(
                 Paths.get("inheritanceMap.dat"), new InheritanceMapFactory())) {
             inheritanceMap.put(entry.getKey(), entry.getValue());

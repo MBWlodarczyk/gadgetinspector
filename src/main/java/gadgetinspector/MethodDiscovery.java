@@ -7,6 +7,10 @@ import gadgetinspector.data.MethodReference;
 import org.objectweb.asm.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,15 +39,30 @@ public class MethodDiscovery {
     }
 
     public void discover(final ClassResourceEnumerator classResourceEnumerator) throws Exception {
-        for (ClassResourceEnumerator.ClassResource classResource : classResourceEnumerator.getAllClasses()) {
-            try (InputStream in = classResource.getInputStream()) {
-                ClassReader cr = new ClassReader(in);
-                try {
-                    cr.accept(new MethodDiscoveryClassVisitor(), ClassReader.EXPAND_FRAMES);
-                } catch (Exception e) {
-                    LOGGER.error("Exception analyzing: " + classResource.getName(), e);
+        ExecutorService ex = Executors.newFixedThreadPool(4);
+        ex.execute(() -> {
+            try {
+                for (ClassResourceEnumerator.ClassResource classResource : classResourceEnumerator.getAllClasses()) {
+                    try (InputStream in = classResource.getInputStream()) {
+                        ClassReader cr = new ClassReader(in);
+                        try {
+                            cr.accept(new MethodDiscoveryClassVisitor(), ClassReader.EXPAND_FRAMES);
+                        } catch (Exception e) {
+                            LOGGER.error("Exception analyzing: " + classResource.getName(), e);
+                        }
+                    }
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+        });
+        ex.shutdown();
+        try {
+            if (!ex.awaitTermination(300, TimeUnit.SECONDS)) {
+                ex.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            ex.shutdownNow();
         }
     }
 

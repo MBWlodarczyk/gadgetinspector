@@ -14,6 +14,9 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class CallGraphDiscovery {
     private static final Logger LOGGER = LoggerFactory.getLogger(CallGraphDiscovery.class);
@@ -26,18 +29,36 @@ public class CallGraphDiscovery {
         InheritanceMap inheritanceMap = InheritanceMap.load();
         Map<MethodReference.Handle, Set<Integer>> passthroughDataflow = PassthroughDiscovery.load();
 
-        SerializableDecider serializableDecider = config.getSerializableDecider(methodMap, inheritanceMap);
 
-        for (ClassResourceEnumerator.ClassResource classResource : classResourceEnumerator.getAllClasses()) {
-            try (InputStream in = classResource.getInputStream()) {
-                ClassReader cr = new ClassReader(in);
-                try {
-                    cr.accept(new ModelGeneratorClassVisitor(classMap, inheritanceMap, passthroughDataflow, serializableDecider, Opcodes.ASM9),
-                            ClassReader.EXPAND_FRAMES);
-                } catch (Exception e) {
-                    LOGGER.error("Error analyzing: " + classResource.getName(), e);
+
+        SerializableDecider serializableDecider = config.getSerializableDecider(methodMap, inheritanceMap);
+        ExecutorService ex = Executors.newFixedThreadPool(4);
+        ex.execute(() -> {
+            try {
+                for (ClassResourceEnumerator.ClassResource classResource : classResourceEnumerator.getAllClasses()) {
+                    try (InputStream in = classResource.getInputStream()) {
+                        ClassReader cr = new ClassReader(in);
+                        try {
+                            cr.accept(new ModelGeneratorClassVisitor(classMap, inheritanceMap, passthroughDataflow, serializableDecider, Opcodes.ASM9),
+                                    ClassReader.EXPAND_FRAMES);
+                        } catch (Exception e) {
+                            LOGGER.error("Error analyzing: " + classResource.getName(), e);
+                        }
+                    } catch (Exception e ) {
+                        //fail gracefully
+                    }
                 }
+            } catch (IOException e) {
+                //fail gracefully
             }
+        });
+        ex.shutdown();
+        try {
+            if (!ex.awaitTermination(300, TimeUnit.SECONDS)) {
+                ex.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            ex.shutdownNow();
         }
     }
 
